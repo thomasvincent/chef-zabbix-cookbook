@@ -17,7 +17,9 @@
       "Bash(chef exec rspec:*)",
       "Bash(bundle install)",
       "Bash(bundle exec rspec:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(git filter-branch:*)"
     ],
     "deny": []
   }
