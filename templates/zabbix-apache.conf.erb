@@ -1,0 +1,48 @@
+# Managed by Chef - DO NOT EDIT MANUALLY
+# Cookbook Name:: zabbix
+# Template:: zabbix-apache.conf.erb
+
+<VirtualHost *:<%= @port %>>
+  ServerName <%= @server_name %>
+  <% @server_aliases.each do |server_alias| -%>
+  ServerAlias <%= server_alias %>
+  <% end -%>
+
+  DocumentRoot <%= @docroot %>
+
+  <Directory <%= @docroot %>>
+    Options FollowSymLinks
+    AllowOverride None
+    Require all granted
+
+    <IfModule mod_php7.c>
+      php_value max_execution_time 300
+      php_value memory_limit 128M
+      php_value post_max_size 16M
+      php_value upload_max_filesize 2M
+      php_value max_input_time 300
+      php_value always_populate_raw_post_data -1
+      php_value date.timezone UTC
+    </IfModule>
+  </Directory>
+
+  <Directory <%= @docroot %>/conf>
+    Require all denied
+  </Directory>
+
+  <Directory <%= @docroot %>/app>
+    Require all denied
+  </Directory>
+
+  <Directory <%= @docroot %>/include>
+    Require all denied
+  </Directory>
+
+  <Directory <%= @docroot %>/local>
+    Require all denied
+  </Directory>
+
+  LogLevel warn
+  ErrorLog ${APACHE_LOG_DIR}/zabbix-error.log
+  CustomLog ${APACHE_LOG_DIR}/zabbix-access.log combined
+</VirtualHost>

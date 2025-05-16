@@ -1,0 +1,56 @@
+# Managed by Chef - DO NOT EDIT MANUALLY
+# Cookbook Name:: zabbix
+# Template:: zabbix-nginx.conf.erb
+
+server {
+    listen <%= @port %>;
+    server_name <%= @server_name %> <%= @server_aliases.join(' ') %>;
+
+    root <%= @docroot %>;
+    index index.php;
+
+    access_log /var/log/nginx/zabbix-access.log;
+    error_log /var/log/nginx/zabbix-error.log;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php-fpm/zabbix.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+        fastcgi_intercept_errors on;
+        fastcgi_ignore_client_abort off;
+        fastcgi_connect_timeout 60;
+        fastcgi_send_timeout 180;
+        fastcgi_read_timeout 180;
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 4 256k;
+        fastcgi_busy_buffers_size 256k;
+        fastcgi_temp_file_write_size 256k;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|html)$ {
+        access_log off;
+        expires max;
+        log_not_found off;
+    }
+
+    # Deny access to configuration, API documentation, and include files
+    location ~ /(conf|include|locale|vendor)/  {
+        deny all;
+        return 404;
+    }
+
+    # Deny access to specific directories
+    location ~ /(app|conf|include|local)/ {
+        deny all;
+        return 404;
+    }
+}

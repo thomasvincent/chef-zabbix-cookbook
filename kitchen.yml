@@ -1,0 +1,118 @@
+---
+driver:
+  name: dokken
+  privileged: true
+  chef_version: 18.2.7
+
+transport:
+  name: dokken
+
+provisioner:
+  name: dokken
+  chef_license: accept
+  enforce_idempotency: true
+  multiple_converge: 2
+  deprecations_as_errors: true
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: ubuntu-20.04
+    driver:
+      image: dokken/ubuntu-20.04
+      pid_one_command: /bin/systemd
+      intermediate_instructions:
+        - RUN /usr/bin/apt-get update
+
+  - name: ubuntu-22.04
+    driver:
+      image: dokken/ubuntu-22.04
+      pid_one_command: /bin/systemd
+      intermediate_instructions:
+        - RUN /usr/bin/apt-get update
+
+  - name: centos-8
+    driver:
+      image: dokken/centos-8
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install initscripts
+
+  - name: debian-11
+    driver:
+      image: dokken/debian-11
+      pid_one_command: /bin/systemd
+      intermediate_instructions:
+        - RUN /usr/bin/apt-get update
+
+  - name: almalinux-8
+    driver:
+      image: dokken/almalinux-8
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install initscripts
+
+suites:
+  - name: agent
+    provisioner:
+      policyfile: test/policyfiles/agent.rb
+    verifier:
+      inspec_tests:
+        - test/integration/agent
+    attributes:
+      zabbix:
+        agent:
+          enabled: true
+          servers: ['127.0.0.1']
+          servers_active: ['127.0.0.1']
+        server:
+          enabled: false
+        web:
+          enabled: false
+        java_gateway:
+          enabled: false
+
+  - name: server-postgresql
+    provisioner:
+      policyfile: test/policyfiles/server.rb
+    verifier:
+      inspec_tests:
+        - test/integration/server
+    attributes:
+      zabbix:
+        agent:
+          enabled: true
+          servers: ['127.0.0.1']
+          servers_active: ['127.0.0.1']
+        server:
+          enabled: true
+          database:
+            type: postgresql
+        web:
+          enabled: true
+          server: apache
+        java_gateway:
+          enabled: false
+
+  - name: server-mysql
+    provisioner:
+      policyfile: test/policyfiles/server.rb
+    verifier:
+      inspec_tests:
+        - test/integration/server
+    attributes:
+      zabbix:
+        agent:
+          enabled: true
+          servers: ['127.0.0.1']
+          servers_active: ['127.0.0.1']
+        server:
+          enabled: true
+          database:
+            type: mysql
+        web:
+          enabled: true
+          server: nginx
+        java_gateway:
+          enabled: false

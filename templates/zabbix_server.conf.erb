@@ -1,0 +1,330 @@
+## Managed by Chef - DO NOT EDIT MANUALLY
+## Cookbook Name:: zabbix
+## Template:: zabbix_server.conf.erb
+##
+
+# This is a configuration file for Zabbix server daemon
+# To get more information about Zabbix, visit http://www.zabbix.com
+
+############ GENERAL PARAMETERS #################
+
+### Option: ListenPort
+#	Listen port for trapper.
+#
+ListenPort=<%= @server_port %>
+
+### Option: SourceIP
+#	Source IP address for outgoing connections.
+#
+# SourceIP=
+
+### Option: LogType
+#	Specifies where log messages are written to:
+#		system  - syslog
+#		file    - file specified with LogFile parameter
+#		console - standard output
+#
+LogType=file
+
+### Option: LogFile
+#	Log file name for LogType 'file' parameter.
+#
+LogFile=<%= @log_file %>
+
+### Option: LogFileSize
+#	Maximum size of log file in MB.
+#	0 - disable automatic log rotation.
+#
+LogFileSize=0
+
+### Option: DebugLevel
+#	Specifies debug level:
+#	0 - basic information about starting and stopping of Zabbix processes
+#	1 - critical information
+#	2 - error information
+#	3 - warnings
+#	4 - for debugging (produces lots of information)
+#	5 - extended debugging (produces even more information)
+#
+DebugLevel=<%= @log_level %>
+
+### Option: PidFile
+#	Name of PID file.
+#
+PidFile=<%= @pid_file %>
+
+### Option: SocketDir
+#	IPC socket directory.
+#
+# SocketDir=/tmp
+
+### Option: DBHost
+#	Database host name.
+#	If set to localhost, socket is used for MySQL.
+#	If set to empty string, socket is used for PostgreSQL.
+#
+DBHost=<%= @db_host %>
+
+### Option: DBName
+#	Database name.
+#
+DBName=<%= @db_name %>
+
+### Option: DBSchema
+#	Schema name. Used for PostgreSQL.
+#
+<% if @db_schema %>DBSchema=<%= @db_schema %><% end %>
+
+### Option: DBUser
+#	Database user.
+#
+DBUser=<%= @db_user %>
+
+### Option: DBPassword
+#	Database password.
+#	Comment this line if no password is used.
+#
+DBPassword=<%= @db_password %>
+
+### Option: DBSocket
+#	Path to MySQL socket.
+#
+<% if @db_socket %>DBSocket=<%= @db_socket %><% end %>
+
+### Option: DBPort
+#	Database port when not using local socket.
+#
+DBPort=<%= @db_port %>
+
+### Option: DBTLSConnect
+#	Setting this option enforces to use TLS connection to database:
+#		required    - connect using TLS
+#		verify_ca   - connect using TLS and verify certificate
+#		verify_full - connect using TLS, verify certificate and verify that database identity specified by DBHost
+#		              matches its certificate
+#
+<% if @db_tls_connect %>DBTLSConnect=<%= @db_tls_connect %><% end %>
+
+############ ADVANCED PARAMETERS ################
+
+### Option: StartPollers
+#	Number of pre-forked instances of pollers.
+#
+StartPollers=<%= @start_pollers %>
+
+### Option: StartIPMIPollers
+#	Number of pre-forked instances of IPMI pollers.
+#
+StartIPMIPollers=<%= @start_ipmi_pollers %>
+
+### Option: StartPollersUnreachable
+#	Number of pre-forked instances of pollers for unreachable hosts (including IPMI and Java).
+#	At least one poller for unreachable hosts must be running if regular, IPMI or Java pollers
+#	are started.
+#
+StartPollersUnreachable=1
+
+### Option: StartTrappers
+#	Number of pre-forked instances of trappers.
+#	Trappers accept incoming connections from Zabbix sender, active agents and active proxies.
+#	At least one trapper process must be running to display server availability and view queue
+#	in the frontend.
+#
+StartTrappers=<%= @start_trappers %>
+
+### Option: StartPingers
+#	Number of pre-forked instances of ICMP pingers.
+#
+StartPingers=<%= @start_pingers %>
+
+### Option: StartDiscoverers
+#	Number of pre-forked instances of discoverers.
+#
+StartDiscoverers=<%= @start_discoverers %>
+
+### Option: StartHTTPPollers
+#	Number of pre-forked instances of HTTP pollers.
+#
+StartHTTPPollers=1
+
+### Option: StartPreprocessors
+#	Number of pre-forked instances of preprocessing workers.
+#	The preprocessing manager process is automatically started when preprocessor worker is started.
+#
+StartPreprocessors=3
+
+### Option: StartTimers
+#	Number of pre-forked instances of timers.
+#	Timers process time-based trigger functions and maintenance periods.
+#	Only the first timer process handles the maintenance periods.
+#
+StartTimers=1
+
+### Option: StartEscalators
+#	Number of pre-forked instances of escalators.
+#
+StartEscalators=1
+
+### Option: JavaGateway
+#	IP address (or hostname) of Zabbix Java gateway.
+#	Only required if Java pollers are started.
+#
+# JavaGateway=
+
+### Option: JavaGatewayPort
+#	Port that Zabbix Java gateway listens on.
+#
+# JavaGatewayPort=10052
+
+### Option: StartJavaPollers
+#	Number of pre-forked instances of Java pollers.
+#
+# StartJavaPollers=0
+
+### Option: StartVMwareCollectors
+#	Number of pre-forked vmware collector instances.
+#
+# StartVMwareCollectors=0
+
+### Option: VMwareFrequency
+#	How often Zabbix will connect to VMware service to obtain a new data.
+#
+# VMwareFrequency=60
+
+### Option: VMwarePerfFrequency
+#	How often Zabbix will connect to VMware service to obtain performance data.
+#
+# VMwarePerfFrequency=60
+
+### Option: VMwareCacheSize
+#	Size of VMware cache, in bytes.
+#	Shared memory size for storing VMware data.
+#	Only used if VMware collectors are started.
+#
+# VMwareCacheSize=8M
+
+### Option: SNMPTrapperFile
+#	Temporary file used for passing data from SNMP trap daemon to the server.
+#	Must be the same as in zabbix_trap_receiver.pl or SNMPTT configuration file.
+#
+# SNMPTrapperFile=/tmp/zabbix_traps.tmp
+
+### Option: StartSNMPTrapper
+#	If 1, SNMP trapper process is started.
+#
+# StartSNMPTrapper=0
+
+### Option: HousekeepingFrequency
+#	How often Zabbix will perform housekeeping procedure (in hours).
+#	Housekeeping is removing outdated information from the database.
+#	To prevent Housekeeper from being overloaded, no more than 4 times HousekeepingFrequency
+#	hours of outdated information are deleted in one housekeeping cycle.
+#	To lower load on server startup housekeeping is postponed for 30 minutes after server start.
+#	With HousekeepingFrequency=0 the housekeeper can be only executed using the runtime control option.
+#	In this case the period of outdated information deleted in one housekeeping cycle is 4 times the
+#	period since the last housekeeping cycle, but not less than 4 hours and not greater than 4 days.
+#
+HousekeepingFrequency=<%= @housekeeping_frequency %>
+
+### Option: MaxHousekeeperDelete
+#	The table "housekeeper" contains "tasks" for housekeeping procedure in the format:
+#	[housekeeperid], [tablename], [field], [value].
+#	No more than 'MaxHousekeeperDelete' rows (corresponding to [tablename], [field], [value])
+#	will be deleted per one task in one housekeeping cycle.
+#	If set to 0 then no limit is used at all. In this case you must know what you are doing!
+#
+MaxHousekeeperDelete=<%= @max_housekeeper_delete %>
+
+### Option: CacheSize
+#	Size of configuration cache, in bytes.
+#	Shared memory size for storing host, item and trigger data.
+#
+CacheSize=<%= @cache_size %>
+
+### Option: CacheUpdateFrequency
+#	How often Zabbix will perform update of configuration cache, in seconds.
+#
+# CacheUpdateFrequency=60
+
+### Option: StartDBSyncers
+#	Number of pre-forked instances of DB Syncers.
+#
+# StartDBSyncers=4
+
+### Option: HistoryCacheSize
+#	Size of history cache, in bytes.
+#	Shared memory size for storing history data.
+#
+# HistoryCacheSize=16M
+
+### Option: HistoryIndexCacheSize
+#	Size of history index cache, in bytes.
+#	Shared memory size for indexing history data stored in history cache.
+#
+# HistoryIndexCacheSize=4M
+
+### Option: TrendCacheSize
+#	Size of trend cache, in bytes.
+#	Shared memory size for storing trends data.
+#
+# TrendCacheSize=4M
+
+### Option: ValueCacheSize
+#	Size of history value cache, in bytes.
+#	Shared memory size for caching item history data requests.
+#	Setting to 0 disables value cache.
+#
+# ValueCacheSize=8M
+
+### Option: Timeout
+#	Specifies how long we wait for agent, SNMP device or external check (in seconds).
+#
+Timeout=<%= @timeout %>
+
+### Option: TrapperTimeout
+#	Specifies how many seconds trapper may spend processing new data.
+#
+# TrapperTimeout=300
+
+### Option: UnreachablePeriod
+#	After how many seconds of unreachability treat a host as unavailable.
+#
+# UnreachablePeriod=45
+
+### Option: UnavailableDelay
+#	How often host is checked for availability during the unavailability period, in seconds.
+#
+# UnavailableDelay=60
+
+### Option: UnreachableDelay
+#	How often host is checked for availability during the unreachability period, in seconds.
+#
+# UnreachableDelay=15
+
+### Option: ExternalScripts
+#	Full path to location of external scripts.
+#	Default depends on compilation options.
+#
+ExternalScripts=<%= @external_scripts %>
+
+### Option: AlertScriptsPath
+#	Full path to location of custom alert scripts.
+#	Default depends on compilation options.
+#
+AlertScriptsPath=<%= @alert_scripts_path %>
+
+### Option: TLSCAFile
+#	Full pathname of a file containing the top-level CA(s) certificates for
+#	peer certificate verification.
+#
+<% if @tls_ca_file %>TLSCAFile=<%= @tls_ca_file %><% end %>
+
+### Option: TLSCertFile
+#	Full pathname of a file containing the server certificate or certificate chain.
+#
+<% if @tls_cert_file %>TLSCertFile=<%= @tls_cert_file %><% end %>
+
+### Option: TLSKeyFile
+#	Full pathname of a file containing the server private key.
+#
+<% if @tls_key_file %>TLSKeyFile=<%= @tls_key_file %><% end %>

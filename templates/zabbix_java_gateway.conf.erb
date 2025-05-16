@@ -1,0 +1,32 @@
+# Managed by Chef - DO NOT EDIT MANUALLY
+# Cookbook Name:: zabbix
+# Template:: zabbix_java_gateway.conf.erb
+
+# This is a configuration file for Zabbix Java Gateway
+# To get more information about Zabbix, visit http://www.zabbix.com
+
+### Option: zabbix.listenIP
+#	IP address to listen on.
+#
+zabbix.listenIP=<%= @listen_ip %>
+
+### Option: zabbix.listenPort
+#	Port to listen on.
+#
+zabbix.listenPort=<%= @listen_port %>
+
+### Option: zabbix.pidFile
+#	Name of PID file.
+#	If omitted, Zabbix Java Gateway is started as a console application.
+#
+zabbix.pidFile=<%= @pid_file %>
+
+### Option: zabbix.startPollers
+#	Number of worker threads to start.
+#
+zabbix.startPollers=<%= @start_pollers %>
+
+### Option: zabbix.timeout
+#	How long to wait for network operations.
+#
+zabbix.timeout=<%= @timeout %>

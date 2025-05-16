@@ -1,0 +1,256 @@
+## Managed by Chef - DO NOT EDIT MANUALLY
+## Cookbook Name:: zabbix
+## Template:: zabbix_agentd.conf.erb
+##
+
+# This is a configuration file for Zabbix agent daemon
+# To get more information about Zabbix, visit http://www.zabbix.com
+
+############ GENERAL PARAMETERS #################
+
+### Option: PidFile
+#	Name of PID file.
+#
+PidFile=<%= @pid_file %>
+
+### Option: LogType
+#	Specifies where log messages are written to:
+#		system  - syslog
+#		file    - file specified with LogFile parameter
+#		console - standard output
+#
+LogType=file
+
+### Option: LogFile
+#	Log file name for LogType 'file' parameter.
+#
+LogFile=<%= @log_file %>
+
+### Option: LogFileSize
+#	Maximum size of log file in MB.
+#	0 - disable automatic log rotation.
+#
+LogFileSize=0
+
+### Option: DebugLevel
+#	Specifies debug level:
+#	0 - basic information about starting and stopping of Zabbix processes
+#	1 - critical information
+#	2 - error information
+#	3 - warnings
+#	4 - for debugging (produces lots of information)
+#	5 - extended debugging (produces even more information)
+#
+DebugLevel=<%= @log_level %>
+
+### Option: SourceIP
+#	Source IP address for outgoing connections.
+#
+# SourceIP=
+
+### Option: EnableRemoteCommands
+#	Whether remote commands from Zabbix server are allowed.
+#	0 - not allowed
+#	1 - allowed
+#
+EnableRemoteCommands=<%= @enable_remote_commands %>
+
+### Option: LogRemoteCommands
+#	Enable logging of executed shell commands as warnings.
+#	0 - disabled
+#	1 - enabled
+#
+LogRemoteCommands=1
+
+### Option: Server
+#	List of comma delimited IP addresses, optionally in CIDR notation, or DNS names of Zabbix servers and Zabbix proxies.
+#	Incoming connections will be accepted only from the hosts listed here.
+#	If IPv6 support is enabled then '127.0.0.1', '::127.0.0.1', '::ffff:127.0.0.1' are treated equally
+#	and '::/0' will allow any IPv4 or IPv6 address.
+#	'0.0.0.0/0' can be used to allow any IPv4 address.
+#	Example: Server=127.0.0.1,192.168.1.0/24,::1,2001:db8::/32,zabbix.example.com
+#
+Server=<%= @servers %>
+
+### Option: ListenPort
+#	Agent will listen on this port for connections from the server.
+#
+ListenPort=<%= @listen_port %>
+
+### Option: ListenIP
+#	List of comma delimited IP addresses that the agent should listen on.
+#	First IP address is sent to Zabbix server if connecting to it to retrieve list of active checks.
+#
+# ListenIP=0.0.0.0
+
+### Option: StartAgents
+#	Number of pre-forked instances of zabbix_agentd that process passive checks.
+#	If set to 0, disables passive checks and the agent will not listen on any TCP port.
+#
+# StartAgents=3
+
+### Option: ServerActive
+#	List of comma delimited IP:port (or DNS name:port) pairs of Zabbix servers and Zabbix proxies for active checks.
+#	If port is not specified, default port is used.
+#	IPv6 addresses must be enclosed in square brackets if port for that host is specified.
+#	If port is not specified, square brackets for IPv6 addresses are optional.
+#	If this parameter is not specified, active checks are disabled.
+#	Example: ServerActive=127.0.0.1:20051,zabbix.domain,[::1]:30051,::1,[12fc::1]
+#
+ServerActive=<%= @servers_active %>
+
+### Option: Hostname
+#	Unique, case sensitive hostname.
+#	Required for active checks and must match hostname as configured on the server.
+#
+Hostname=<%= @hostname %>
+
+### Option: HostnameItem
+#	Item used for generating Hostname if it is unclear.
+#	Ignored if Hostname is defined.
+#
+# HostnameItem=system.hostname
+
+### Option: HostMetadata
+#	Optional parameter that defines host metadata.
+#	Host metadata is used at host auto-registration process.
+#	An agent will issue an error and not start if the value is over limit of 255 characters.
+#	If not defined, value will be acquired from HostMetadataItem.
+#
+# HostMetadata=
+
+### Option: HostMetadataItem
+#	Optional parameter that defines an item used for getting host metadata.
+#	Host metadata is used at host auto-registration process.
+#	During an auto-registration request an agent will log a warning message if
+#	the value returned by specified item is over limit of 255 characters.
+#	This option is only used when HostMetadata is not defined.
+#
+# HostMetadataItem=
+
+### Option: RefreshActiveChecks
+#	How often list of active checks is refreshed, in seconds.
+#
+# RefreshActiveChecks=120
+
+### Option: BufferSend
+#	Do not keep data longer than N seconds in buffer.
+#
+# BufferSend=5
+
+### Option: BufferSize
+#	Maximum number of values in a memory buffer. The agent will send
+#	all collected data to Zabbix Server or Proxy if the buffer is full.
+#
+# BufferSize=100
+
+### Option: MaxLinesPerSecond
+#	Maximum number of new lines the agent will send per second to Zabbix Server
+#	or Proxy processing 'log' and 'logrt' active checks.
+#	The provided value will be overridden by the parameter 'maxlines',
+#	provided in 'log' or 'logrt' item keys.
+#
+# MaxLinesPerSecond=20
+
+############ ADVANCED PARAMETERS #################
+
+### Option: Timeout
+#	Spend no more than Timeout seconds on processing
+#
+Timeout=<%= @timeout %>
+
+### Option: AllowRoot
+#	Allow the agent to run as 'root'. If disabled and the agent is started by 'root', the agent
+#	will try to switch to the user specified by the User configuration option instead.
+#	Has no effect if started under a regular user.
+#	0 - do not allow
+#	1 - allow
+#
+# AllowRoot=0
+
+### Option: User
+#	Drop privileges to a specific, existing user on the system.
+#	Only has effect if run as 'root' and AllowRoot is disabled.
+#
+# User=zabbix
+
+### Option: Include
+#	You may include individual files or all files in a directory in the configuration file.
+#	Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
+#
+Include=<%= @include_dir %>/*.conf
+
+### Option: UnsafeUserParameters
+#	Allow all characters to be passed in arguments to user-defined parameters.
+#	The following characters are not allowed:
+#	\ ' " ` * ? [ ] { } ~ $ ! & ; ( ) < > | # @
+#	Additionally, newline characters are not allowed.
+#	0 - do not allow
+#	1 - allow
+#
+# UnsafeUserParameters=0
+
+### Option: UserParameterDir
+#	Directory to store the user parameters.
+#	The directory must exist and only files from this directory are loaded by Zabbix agent.
+#
+# UserParameterDir=
+
+### Option: TLSConnect
+#	How the agent should connect to server or proxy. Used for active checks.
+#	Only one value can be specified:
+#		unencrypted - connect without encryption
+#		psk         - connect using TLS and a pre-shared key
+#		cert        - connect using TLS and a certificate
+#
+<% if @tls_connect %>TLSConnect=<%= @tls_connect %><% end %>
+
+### Option: TLSAccept
+#	What incoming connections to accept.
+#	Multiple values can be specified, separated by comma:
+#		unencrypted - accept connections without encryption
+#		psk         - accept connections secured with TLS and a pre-shared key
+#		cert        - accept connections secured with TLS and a certificate
+#
+<% if @tls_accept %>TLSAccept=<%= @tls_accept %><% end %>
+
+### Option: TLSCAFile
+#	Full pathname of a file containing the top-level CA(s) certificates for
+#	peer certificate verification.
+#
+<% if @tls_ca_file %>TLSCAFile=<%= @tls_ca_file %><% end %>
+
+### Option: TLSCRLFile
+#	Full pathname of a file containing revoked certificates.
+#
+# TLSCRLFile=
+
+### Option: TLSServerCertIssuer
+#      Allowed server certificate issuer.
+#
+# TLSServerCertIssuer=
+
+### Option: TLSServerCertSubject
+#      Allowed server certificate subject.
+#
+# TLSServerCertSubject=
+
+### Option: TLSCertFile
+#	Full pathname of a file containing the agent certificate or certificate chain.
+#
+<% if @tls_cert_file %>TLSCertFile=<%= @tls_cert_file %><% end %>
+
+### Option: TLSKeyFile
+#	Full pathname of a file containing the agent private key.
+#
+<% if @tls_key_file %>TLSKeyFile=<%= @tls_key_file %><% end %>
+
+### Option: TLSPSKIdentity
+#	Unique, case sensitive string used to identify the pre-shared key.
+#
+<% if @tls_psk_identity %>TLSPSKIdentity=<%= @tls_psk_identity %><% end %>
+
+### Option: TLSPSKFile
+#	Full pathname of a file containing the pre-shared key.
+#
+<% if @tls_psk_file %>TLSPSKFile=<%= @tls_psk_file %><% end %>
