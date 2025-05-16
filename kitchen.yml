@@ -2,7 +2,15 @@
 driver:
   name: dokken
   privileged: true
-  chef_version: 18.2.7
+  chef_version: 18.4.0 # Latest Chef 18 version
+  memory: 2048
+  cpu: 2
+  volumes:
+    - /sys/fs/cgroup:/sys/fs/cgroup:rw
+  tmpfs:
+    - /tmp
+    - /run
+    - /run/lock
 
 transport:
   name: dokken
@@ -13,9 +21,18 @@ provisioner:
   enforce_idempotency: true
   multiple_converge: 2
   deprecations_as_errors: true
+  log_level: info
+  retry_on_exit_code: 
+    - 35 # Service restart might cause temporary failures
+  max_retries: 2
+  wait_for_retry: 120
 
 verifier:
   name: inspec
+  sudo: true
+  reporter:
+    - cli
+    - junit:test/reports/%{platform}_%{suite}.xml
 
 platforms:
   - name: ubuntu-20.04
@@ -24,6 +41,7 @@ platforms:
       pid_one_command: /bin/systemd
       intermediate_instructions:
         - RUN /usr/bin/apt-get update
+        - RUN apt-get install -y lsb-release curl gnupg2 systemd
 
   - name: ubuntu-22.04
     driver:
@@ -31,13 +49,7 @@ platforms:
       pid_one_command: /bin/systemd
       intermediate_instructions:
         - RUN /usr/bin/apt-get update
-
-  - name: centos-8
-    driver:
-      image: dokken/centos-8
-      pid_one_command: /usr/lib/systemd/systemd
-      intermediate_instructions:
-        - RUN yum -y install initscripts
+        - RUN apt-get install -y lsb-release curl gnupg2 systemd ca-certificates
 
   - name: debian-11
     driver:
@@ -45,13 +57,28 @@ platforms:
       pid_one_command: /bin/systemd
       intermediate_instructions:
         - RUN /usr/bin/apt-get update
+        - RUN apt-get install -y lsb-release curl gnupg2 ca-certificates
+
+  - name: rockylinux-8
+    driver:
+      image: dokken/rockylinux-8
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install initscripts systemd-sysv which lsof
 
   - name: almalinux-8
     driver:
       image: dokken/almalinux-8
       pid_one_command: /usr/lib/systemd/systemd
       intermediate_instructions:
-        - RUN yum -y install initscripts
+        - RUN yum -y install initscripts systemd-sysv which lsof
+
+  - name: amazonlinux-2
+    driver:
+      image: dokken/amazonlinux-2
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install systemd-sysv initscripts shadow-utils
 
 suites:
   - name: agent
@@ -94,6 +121,11 @@ suites:
           server: apache
         java_gateway:
           enabled: false
+    includes:
+      - ubuntu-20.04
+      - ubuntu-22.04
+      - debian-11
+      - rockylinux-8
 
   - name: server-mysql
     provisioner:
@@ -116,3 +148,8 @@ suites:
           server: nginx
         java_gateway:
           enabled: false
+    includes:
+      - ubuntu-20.04
+      - ubuntu-22.04
+      - debian-11
+      - rockylinux-8

@@ -18,6 +18,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+unified_mode true
+
+# Setup repository
+include_recipe 'zabbix::repository'
+
 # Create the Zabbix user and group
 group node['zabbix']['group'] do
   system true
@@ -33,14 +38,12 @@ user node['zabbix']['user'] do
   action :create
 end
 
-# Create directories for Zabbix
+# Create base directories for Zabbix
 %w(
   dir
   log_dir
   run_dir
   socket_dir
-  external_dir
-  alert_dir
   tmp_dir
   home_dir
 ).each do |dir|
@@ -54,78 +57,52 @@ end
   end
 end
 
-# Install platform-specific dependencies
-case node['platform_family']
-when 'rhel', 'amazon'
-  include_recipe 'yum-epel'
-
-  yum_repository 'zabbix' do
-    description "Zabbix Official Repository - #{node['kernel']['machine']}"
-    baseurl node['zabbix']['repository_uri']
-    gpgkey node['zabbix']['repository_key']
-    action :create
-    gpgcheck true
-  end
-
-  yum_repository 'zabbix-non-supported' do
-    description "Zabbix Official Repository non-supported - #{node['kernel']['machine']}"
-    baseurl node['zabbix']['repository_uri'].gsub('$basearch', 'non-supported')
-    gpgkey node['zabbix']['repository_key']
-    action :create
-    gpgcheck true
-  end
-
-  package %w(
-    make
-    gcc
-    libxml2-devel
-    libcurl-devel
-    net-snmp-devel
-    libevent-devel
-    pcre-devel
-    OpenIPMI-devel
-    openldap-devel
-    unixODBC-devel
-    java-1.8.0-openjdk-devel
-  ) do
+# Setup SELinux if enabled
+if platform_family?('rhel', 'fedora', 'amazon')
+  selinux_install 'zabbix' do
     action :install
-    only_if { node['zabbix']['server']['install_method'] == 'source' }
+    not_if 'getenforce | grep -i disabled'
   end
-
-when 'debian'
-  include_recipe 'apt'
-
-  apt_repository 'zabbix' do
-    uri "https://repo.zabbix.com/zabbix/#{node['zabbix']['version']}/#{node['platform']}/"
-    components ['main']
-    distribution node['lsb']['codename']
-    key node['zabbix']['repository_key']
-    action :add
+  
+  selinux_fcontext '/etc/zabbix(/.*)?' do
+    secontext 'etc_t'
+    not_if 'getenforce | grep -i disabled'
   end
-
-  package %w(
-    build-essential
-    libxml2-dev
-    libcurl4-openssl-dev
-    snmp-mibs-downloader
-    libsnmp-dev
-    libevent-dev
-    libpcre3-dev
-    libssh2-1-dev
-    libopenipmi-dev
-    libldap2-dev
-    unixodbc-dev
-    default-jdk
-  ) do
-    action :install
-    only_if { node['zabbix']['server']['install_method'] == 'source' }
+  
+  selinux_fcontext '/var/log/zabbix(/.*)?' do
+    secontext 'zabbix_log_t'
+    not_if 'getenforce | grep -i disabled'
+  end
+  
+  selinux_fcontext '/var/run/zabbix(/.*)?' do
+    secontext 'zabbix_var_run_t'
+    not_if 'getenforce | grep -i disabled'
   end
 end
 
-# Include recipes based on attributes
-include_recipe 'zabbix::agent' if node['zabbix']['agent']['enabled']
-include_recipe 'zabbix::server' if node['zabbix']['server']['enabled']
-include_recipe 'zabbix::web' if node['zabbix']['web']['enabled']
+# Install Zabbix agent if enabled
+zabbix_agent 'default' do
+  action :install
+  only_if { node['zabbix']['agent']['enabled'] }
+end
+
+# Install Zabbix server if enabled
+if node['zabbix']['server']['enabled']
+  # Setup database first
+  include_recipe 'zabbix::database'
+  
+  zabbix_server 'default' do
+    action :install
+  end
+end
+
+# Install Zabbix web interface if enabled
+zabbix_web 'default' do
+  action :install
+  only_if { node['zabbix']['web']['enabled'] }
+end
+
+# Install Zabbix Java Gateway if enabled
 include_recipe 'zabbix::java_gateway' if node['zabbix']['java_gateway']['enabled']
 
 log 'Zabbix installation completed' do

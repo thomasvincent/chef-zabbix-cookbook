@@ -18,9 +18,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+unified_mode true
+
 # Configure repositories for Zabbix packages
 case node['platform_family']
-when 'rhel', 'amazon'
+when 'rhel', 'amazon', 'fedora'
   include_recipe 'yum-epel'
 
   # Create a Zabbix repository
@@ -28,8 +30,11 @@ when 'rhel', 'amazon'
     description "Zabbix Official Repository - #{node['kernel']['machine']}"
     baseurl node['zabbix']['repository_uri']
     gpgkey node['zabbix']['repository_key']
-    action :create
+    enabled true
     gpgcheck true
+    make_cache true
+    metadata_expire '1h'
+    action :create
   end
 
   # Create a Zabbix non-supported repository
@@ -37,24 +42,34 @@ when 'rhel', 'amazon'
     description "Zabbix Official Repository non-supported - #{node['kernel']['machine']}"
     baseurl node['zabbix']['repository_uri'].gsub('$basearch', 'non-supported')
     gpgkey node['zabbix']['repository_key']
-    action :create
+    enabled true
     gpgcheck true
+    make_cache true
+    metadata_expire '1h'
+    action :create
+  end
+
+  # Install common dependencies
+  package %w(curl libcurl-devel net-snmp net-snmp-devel) do
+    flush_cache [:before]
+    action :install
   end
 
 when 'debian'
   include_recipe 'apt'
 
   # Install apt-transport-https for HTTPS repo
-  package 'apt-transport-https' do
+  package %w(apt-transport-https ca-certificates gnupg curl) do
     action :install
   end
 
-  # Create a Zabbix repository
+  # Create a Zabbix main repository
   apt_repository 'zabbix' do
     uri "https://repo.zabbix.com/zabbix/#{node['zabbix']['version']}/#{node['platform']}/"
     components ['main']
     distribution node['lsb']['codename']
     key node['zabbix']['repository_key']
+    cache_rebuild true
     action :add
   end
 
@@ -64,11 +79,30 @@ when 'debian'
     components ['main']
     distribution node['lsb']['codename']
     key node['zabbix']['repository_key']
+    cache_rebuild true
     action :add
   end
 
   # Update apt cache
   apt_update 'update' do
     action :update
+    ignore_failure true
   end
+
+  # Install common dependencies
+  package %w(curl libcurl4 libcurl4-openssl-dev snmp libsnmp-dev) do
+    action :install
+  end
+end
+
+# Create and populate repository cache for faster operations
+execute 'zabbix-repo-cache-refresh' do
+  case node['platform_family']
+  when 'rhel', 'amazon', 'fedora'
+    command 'yum makecache -y'
+  when 'debian'
+    command 'apt-get update -qq'
+  end
+  action :run
+  ignore_failure true
 end
