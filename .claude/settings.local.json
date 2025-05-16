@@ -19,7 +19,10 @@
       "Bash(bundle exec rspec:*)",
       "Bash(cp:*)",
       "Bash(ls:*)",
-      "Bash(git filter-branch:*)"
+      "Bash(git filter-branch:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

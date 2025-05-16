@@ -50,10 +50,26 @@ platforms:
       intermediate_instructions:
         - RUN /usr/bin/apt-get update
         - RUN apt-get install -y lsb-release curl gnupg2 systemd ca-certificates
+        
+  - name: ubuntu-24.04
+    driver:
+      image: dokken/ubuntu-24.04
+      pid_one_command: /bin/systemd
+      intermediate_instructions:
+        - RUN /usr/bin/apt-get update
+        - RUN apt-get install -y lsb-release curl gnupg2 systemd ca-certificates
 
   - name: debian-11
     driver:
       image: dokken/debian-11
+      pid_one_command: /bin/systemd
+      intermediate_instructions:
+        - RUN /usr/bin/apt-get update
+        - RUN apt-get install -y lsb-release curl gnupg2 ca-certificates
+        
+  - name: debian-12
+    driver:
+      image: dokken/debian-12
       pid_one_command: /bin/systemd
       intermediate_instructions:
         - RUN /usr/bin/apt-get update
@@ -65,6 +81,13 @@ platforms:
       pid_one_command: /usr/lib/systemd/systemd
       intermediate_instructions:
         - RUN yum -y install initscripts systemd-sysv which lsof
+        
+  - name: rockylinux-9
+    driver:
+      image: dokken/rockylinux-9
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install initscripts systemd-sysv which lsof
 
   - name: almalinux-8
     driver:
@@ -72,10 +95,24 @@ platforms:
       pid_one_command: /usr/lib/systemd/systemd
       intermediate_instructions:
         - RUN yum -y install initscripts systemd-sysv which lsof
+        
+  - name: almalinux-9
+    driver:
+      image: dokken/almalinux-9
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install initscripts systemd-sysv which lsof
 
   - name: amazonlinux-2
     driver:
       image: dokken/amazonlinux-2
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install systemd-sysv initscripts shadow-utils
+        
+  - name: amazonlinux-2023
+    driver:
+      image: dokken/amazonlinux-2023
       pid_one_command: /usr/lib/systemd/systemd
       intermediate_instructions:
         - RUN yum -y install systemd-sysv initscripts shadow-utils
@@ -124,8 +161,13 @@ suites:
     includes:
       - ubuntu-20.04
       - ubuntu-22.04
+      - ubuntu-24.04
       - debian-11
+      - debian-12
       - rockylinux-8
+      - rockylinux-9
+      - almalinux-9
+      - amazonlinux-2023
 
   - name: server-mysql
     provisioner:
@@ -151,5 +193,10 @@ suites:
     includes:
       - ubuntu-20.04
       - ubuntu-22.04
+      - ubuntu-24.04
       - debian-11
+      - debian-12
       - rockylinux-8
+      - rockylinux-9
+      - almalinux-9
+      - amazonlinux-2023
