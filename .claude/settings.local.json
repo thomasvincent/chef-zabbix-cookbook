@@ -5,7 +5,19 @@
       "Bash(find:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git rm:*)",
+      "Bash(kitchen list:*)",
+      "Bash(chef gem:*)",
+      "Bash(gem install:*)",
+      "Bash(kitchen driver:*)",
+      "Bash(kitchen test:*)",
+      "Bash(rm:*)",
+      "Bash(git checkout:*)",
+      "Bash(chef exec rspec:*)",
+      "Bash(bundle install)",
+      "Bash(bundle exec rspec:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

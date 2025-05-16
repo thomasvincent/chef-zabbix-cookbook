@@ -40,10 +40,26 @@ platforms:
       intermediate_instructions:
         - RUN /usr/bin/apt-get update -qq
         - RUN /usr/bin/apt-get install -y curl
+        
+  - name: ubuntu-24.04
+    driver:
+      image: dokken/ubuntu-24.04
+      pid_one_command: /bin/systemd
+      intermediate_instructions:
+        - RUN /usr/bin/apt-get update -qq
+        - RUN /usr/bin/apt-get install -y curl
 
   - name: debian-11
     driver:
       image: dokken/debian-11
+      pid_one_command: /bin/systemd
+      intermediate_instructions:
+        - RUN /usr/bin/apt-get update -qq
+        - RUN /usr/bin/apt-get install -y curl
+        
+  - name: debian-12
+    driver:
+      image: dokken/debian-12
       pid_one_command: /bin/systemd
       intermediate_instructions:
         - RUN /usr/bin/apt-get update -qq
@@ -69,10 +85,24 @@ platforms:
       pid_one_command: /usr/lib/systemd/systemd
       intermediate_instructions:
         - RUN yum -y install sudo curl
+        
+  - name: amazon-2023
+    driver:
+      image: dokken/amazonlinux-2023
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install sudo curl
 
   - name: rockylinux-8
     driver:
       image: dokken/rockylinux-8
+      pid_one_command: /usr/lib/systemd/systemd
+      intermediate_instructions:
+        - RUN yum -y install sudo curl
+        
+  - name: rockylinux-9
+    driver:
+      image: dokken/rockylinux-9
       pid_one_command: /usr/lib/systemd/systemd
       intermediate_instructions:
         - RUN yum -y install sudo curl
